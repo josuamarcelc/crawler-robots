@@ -1,0 +1,189 @@
+<style>
+:root {
+  --light:#F5F5F5;
+  --dark:#212121;
+  --brown:#372F25;
+  --red:#FD3E3E;
+  --orange:#FFAA48;
+  --green:#27C86D;
+}
+
+*, *::before, *::after { box-sizing:border-box }
+
+body {
+	margin:0;
+  
+  background-color:var(--dark);
+  color:var(--light);
+  font-family: Helvetica, Arial, sans-serif;
+  
+  
+}
+
+.app {
+  text-align:center;
+  display:grid;
+  place-items:center;
+  min-height:100vh;
+}
+
+.metric-group {
+  display:flex;
+}
+
+.metric {
+  margin:10px;
+  max-width:90px;
+  display:grid;
+  gap:16px;
+  place-items:center;
+  
+  .label {
+    font-weight:700;
+    font-size:0.9rem;
+  }
+}
+
+
+.circle-chart {
+  
+  --selected-color: var(--green);
+  
+  color:var(--selected-color);
+  width:75px;
+  display:grid;
+  place-items:center;
+  
+  > * {
+    grid-column: 1 / -1;
+    grid-row: 1 / -1;
+  }
+  
+  .circle-bg {
+    fill: var(--brown);
+    stroke: var(--brown);
+    stroke-width: 2.8;
+  }
+
+  .circle {
+    fill: none;
+    stroke: var(--selected-color);
+    stroke-width: 2.8;
+    stroke-linecap: round;
+    animation: progress 1.2s ease-in-out forwards;
+    
+  }
+  
+  .percentage {
+    font-family: Monaco, monospace;
+    font-weight:bold;
+    font-size: 1.4rem;
+  }
+  
+}
+
+.app-editor {
+  align-self:end;
+  margin-bottom:50px;
+}
+
+@keyframes progress {
+  0% {
+    stroke-dasharray: 0 100;
+  }
+}
+
+input, button {
+  font-size:1.2rem;
+  font-weight:700;
+  padding:12px;
+  background-color:var(--brown);
+  color:var(--light);
+  border:none;
+  margin:5px 2px;
+}
+
+button {
+  background-color:var(--brown);
+  border-radius:100px;
+  aspect-ratio:1;
+  width:45px;
+  
+  &:hover, &:focus, &:active {
+    background-color:var(--red);
+    cursor:pointer;
+  }
+}
+</style>
+
+<main class="app" v-scope="app()">
+  <div class="app-display">
+    <h2>{{title}}</h2>
+    <div class="metric-group">
+      <div class="metric" v-for="metric in metrics">
+        <div class="circle-chart" :style="{ '--selected-color': `var(--${color(metric.pct)}` }">
+          <svg viewBox="0 0 36 36">
+            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            <path class="circle" :stroke-dasharray="`${metric.pct}, 100`" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+          </svg>
+          <div class="percentage">{{metric.pct}}</div>
+        </div>
+        <div class="label">{{metric.title}}</div>
+      </div>
+    </div>
+  </div>
+  <div class="app-editor">
+    <h2>Editor</h2>
+    <input type="text" v-model="title">
+    <div class="edit-metrics">
+      <div class="edit" v-for="metric in metrics">
+        
+        <input type="text" v-model="metric.title">
+        <input type="number" v-model="metric.pct">
+<!--         <button>x</button> -->
+      </div>
+    </div>
+  </div>
+</main>
+
+
+<script>
+import {createApp} from "https://cdn.skypack.dev/petite-vue@0.4.1";
+
+const app = () => {
+  
+  const metrics = [
+    {
+      title:"Performance",
+      pct:66,
+    },
+    {
+      title:"Accessibility",
+      pct:100,
+    },
+    {
+      title:"Best Practices",
+      pct:52,
+    },
+    {
+      title:"SEO",
+      pct:30,
+    }
+  ]
+  return {
+    title:"website.com",
+    metrics,
+    color(pct) {
+      if( pct > 89 ) {
+        return 'green';
+      } else if( pct > 49 ) {
+        return 'orange';
+      }
+      
+      return 'red';
+    }
+  }
+}
+
+createApp({app}).mount();
+</script>
